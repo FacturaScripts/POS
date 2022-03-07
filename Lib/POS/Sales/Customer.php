@@ -3,8 +3,6 @@
 
 namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
-
-use FacturaScripts\Core\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Cliente;
 
 class Customer

@@ -24,7 +24,19 @@
                 <widget type="select" fieldname="codserie" required='true' onclick="EditSerie">
                     <values source="series" fieldcode="codserie" fieldtitle="descripcion"/>
                 </widget>
-            </column>            
+            </column>
+            <column name="doc-type" order="110">
+                <widget type="select" fieldname="defaultdoc" translate="true">
+                    <values title="customer-estimation">PresupuestoCliente</values>
+                    <values title="customer-order">PedidoCliente</values>
+                    <values title="customer-delivery-note">AlbaranCliente</values>
+                    <values title="customer-invoice">FacturaCliente</values>
+                    <values title="supplier-estimation">PresupuestoProveedor</values>
+                    <values title="supplier-order">PedidoProveedor</values>
+                    <values title="supplier-delivery-note">AlbaranProveedor</values>
+                    <values title="supplier-invoice">FacturaProveedor</values>
+                </widget>
+            </column>
         </group>
         <group name="extra" numcolumns="12" valign="bottom">
             <column name="ticket-line-lenght" numcolumns="3" order="100">

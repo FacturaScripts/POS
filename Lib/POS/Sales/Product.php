@@ -4,28 +4,41 @@
 namespace FacturaScripts\Plugins\POS\Lib\POS\Sales;
 
 use FacturaScripts\Core\Base\DataBase\DataBaseWhere;
-use FacturaScripts\Dinamic\Model\CodeModel;
+use FacturaScripts\Core\Model\CodeModel;
 use FacturaScripts\Dinamic\Model\Variante;
+use FacturaScripts\Plugins\POS\Model\Join\ProductoVariante;
 
 class Product
 {
     /**
+     * @var ProductoVariante
+     */
+    protected static $product = null;
+
+    /**
      * @var Variante
      */
-    protected $variante;
+    protected static $variante = null;
 
-    public function __construct()
+    /**
+     * @return ProductoVariante
+     */
+    public static function getProductoVariante(): ProductoVariante
     {
-        $this->variante = new Variante();
+        if (self::$product === null) {
+            self::$product = new ProductoVariante();
+        }
+
+        return self::$product;
     }
 
     /**
      * @param string $code
      * @return float|int
      */
-    public function getStock(string $code)
+    public static function getStock(string $code)
     {
-        $producto = $this->getVariante();
+        $producto = self::getVariante();
         $producto->loadFromCode('', [new DataBaseWhere('referencia', $code)]);
 
         return $producto->stockfis ?? 0;
@@ -34,39 +47,50 @@ class Product
     /**
      * @return Variante
      */
-    public function getVariante(): Variante
+    public static function getVariante(): Variante
     {
-        return $this->variante;
+        if (self::$variante === null) {
+            self::$variante = new Variante();
+        }
+
+        return self::$variante;
     }
 
     /**
      * @param string $text
-     * @return CodeModel[]
+     * @param array $tags
+     * @param string $wharehouse
+     * @return array
      */
-    public function search(string $text): array
+    public static function search(string $text, array $tags = [], string $wharehouse = ''): array
     {
-        $text = str_replace(" ", "%", $text);
+        ///$text2 = str_replace(" ", "%", $text);
 
-        return $this->queryProduct($text);
+        $where = [
+            new DataBaseWhere('V.referencia', $text, 'LIKE'),
+            new DataBaseWhere('P.descripcion', $text, 'XLIKE', 'OR')
+        ];
+
+        if ($wharehouse && '' !== $wharehouse) {
+            $where[] = new DataBaseWhere('S.codalmacen', $wharehouse);
+            $where[] = new DataBaseWhere('S.codalmacen', NULL, 'IS', 'OR');
+        }
+
+        foreach ($tags as $tag) {
+            $where[] = new DataBaseWhere('codfamilia', $tag, '=', 'AND');
+        }
+
+        return self::getProductoVariante()->all($where, [], 0, FS_ITEM_LIMIT);
     }
 
     /**
      * @param string $text
      * @return false|CodeModel
      */
-    public function searchBarcode(string $text)
+    public static function searchBarcode(string $text)
     {
-        $queryResult = $this->queryProduct($text);
+        $result = self::getVariante()->codeModelSearch($text, 'referencia');
 
-        return empty($queryResult) ? false : $queryResult[0];
-    }
-
-    /**
-     * @param string $text
-     * @return array|CodeModel[]
-     */
-    protected function queryProduct(string $text): array
-    {
-        return $this->getVariante()->codeModelSearch($text, 'referencia');
+        return empty($result) ? false : $result[0];
     }
 }

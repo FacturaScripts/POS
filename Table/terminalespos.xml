@@ -44,6 +44,11 @@
         <null>YES</null>
     </column>
     <column>
+        <name>defaultdoc</name>
+        <type>character varying(20)</type>
+        <null>YES</null>
+    </column>
+    <column>
         <name>disponible</name>
         <type>boolean</type>
         <null>NO</null>
